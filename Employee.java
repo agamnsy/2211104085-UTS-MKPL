@@ -51,26 +51,31 @@ public class Employee {
 	
 	/**
 	 * Fungsi untuk menentukan gaji bulanan pegawai berdasarkan grade kepegawaiannya (grade 1: 3.000.000 per bulan, grade 2: 5.000.000 per bulan, grade 3: 7.000.000 per bulan)
-	 * Jika pegawai adalah warga negara asing gaji bulanan diperbesar sebanyak 50%
+	 * Jika pegawai adalah warga negara asing gaji bulanan diperbesar sebanyak 50% (DONE)
 	 */
 	
 	public void setMonthlySalary(int grade) {	
-		if (grade == 1) {
-			monthlySalary = 3000000;
-			if (isForeigner) {
-				monthlySalary = (int) (3000000 * 1.5);
-			}
-		}else if (grade == 2) {
-			monthlySalary = 5000000;
-			if (isForeigner) {
-				monthlySalary = (int) (3000000 * 1.5);
-			}
-		}else if (grade == 3) {
-			monthlySalary = 7000000;
-			if (isForeigner) {
-				monthlySalary = (int) (3000000 * 1.5);
-			}
-		}
+		int baseSalary;
+
+        switch (grade) {
+            case 1:
+                baseSalary = 3000000;
+                break;
+            case 2:
+                baseSalary = 5000000;
+                break;
+            case 3:
+                baseSalary = 7000000;
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid grade: " + grade);
+        }
+
+        if (isForeigner) {
+            baseSalary *= 1.5;
+        }
+
+        this.monthlySalary = baseSalary;
 	}
 	
 	public void setAnnualDeductible(int deductible) {	
@@ -83,7 +88,7 @@ public class Employee {
 	
 	public void setSpouse(String spouseName, String spouseIdNumber) {
 		this.spouseName = spouseName;
-		this.spouseIdNumber = idNumber;
+		this.spouseIdNumber = IdNumber;
 	}
 	
 	public void addChild(String childName, String childIdNumber) {
