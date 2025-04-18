@@ -4,6 +4,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Employee {
+	
+	public enum Gender {
+		Male, Female
+	}
 
 	private String employeeId;
 	private String firstName;
@@ -16,8 +20,10 @@ public class Employee {
 	private int dayJoined;
 	private int monthWorkingInYear;
 	
+	private LocalDate joinDate = LocalDate.of(yearJoined, monthJoined, dayJoined);
+	
 	private boolean isForeigner;
-	private boolean gender; //true = Laki-laki, false = Perempuan
+	private Gender gender; //true = Laki-laki, false = Perempuan (DONE)
 	
 	private int monthlySalary;
 	private int otherMonthlyIncome;
@@ -29,7 +35,7 @@ public class Employee {
 	private List<String> childNames;
 	private List<String> childIdNumbers;
 	
-	public Employee(String employeeId, String firstName, String lastName, String idNumber, String address, int yearJoined, int monthJoined, int dayJoined, boolean isForeigner, boolean gender) {
+	public Employee(String employeeId, String firstName, String lastName, String idNumber, String address, int yearJoined, int monthJoined, int dayJoined, boolean isForeigner, Gender gender) {
 		this.employeeId = employeeId;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -47,26 +53,31 @@ public class Employee {
 	
 	/**
 	 * Fungsi untuk menentukan gaji bulanan pegawai berdasarkan grade kepegawaiannya (grade 1: 3.000.000 per bulan, grade 2: 5.000.000 per bulan, grade 3: 7.000.000 per bulan)
-	 * Jika pegawai adalah warga negara asing gaji bulanan diperbesar sebanyak 50%
+	 * Jika pegawai adalah warga negara asing gaji bulanan diperbesar sebanyak 50% (DONE)
 	 */
 	
 	public void setMonthlySalary(int grade) {	
-		if (grade == 1) {
-			monthlySalary = 3000000;
-			if (isForeigner) {
-				monthlySalary = (int) (3000000 * 1.5);
-			}
-		}else if (grade == 2) {
-			monthlySalary = 5000000;
-			if (isForeigner) {
-				monthlySalary = (int) (3000000 * 1.5);
-			}
-		}else if (grade == 3) {
-			monthlySalary = 7000000;
-			if (isForeigner) {
-				monthlySalary = (int) (3000000 * 1.5);
-			}
-		}
+		int baseSalary;
+
+        switch (grade) {
+            case 1:
+                baseSalary = 3000000;
+                break;
+            case 2:
+                baseSalary = 5000000;
+                break;
+            case 3:
+                baseSalary = 7000000;
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid grade: " + grade);
+        }
+
+        if (isForeigner) {
+            baseSalary *= 1.5;
+        }
+
+        this.monthlySalary = baseSalary;
 	}
 	
 	public void setAnnualDeductible(int deductible) {	
@@ -79,7 +90,7 @@ public class Employee {
 	
 	public void setSpouse(String spouseName, String spouseIdNumber) {
 		this.spouseName = spouseName;
-		this.spouseIdNumber = idNumber;
+		this.spouseIdNumber = IdNumber;
 	}
 	
 	public void addChild(String childName, String childIdNumber) {
@@ -89,15 +100,19 @@ public class Employee {
 	
 	public int getAnnualIncomeTax() {
 		
-		//Menghitung berapa lama pegawai bekerja dalam setahun ini, jika pegawai sudah bekerja dari tahun sebelumnya maka otomatis dianggap 12 bulan.
-		LocalDate date = LocalDate.now();
+		//Menghitung berapa lama pegawai bekerja dalam setahun ini, jika pegawai sudah bekerja dari tahun sebelumnya maka otomatis dianggap 12 bulan. (DONE)
+		LocalDate currentDate = LocalDate.now();
 		
-		if (date.getYear() == yearJoined) {
-			monthWorkingInYear = date.getMonthValue() - monthJoined;
-		}else {
-			monthWorkingInYear = 12;
-		}
+		int monthWorkingInYear = LocalDate.now().getYear() == joinDate.getYear()
+		? LocalDate.now().getMonthValue() - joinDate.getMonthValue()
+		: 12;
 		
-		return TaxFunction.calculateTax(monthlySalary, otherMonthlyIncome, monthWorkingInYear, annualDeductible, spouseIdNumber.equals(""), childIdNumbers.size());
+		return TaxFunction.calculateTax(
+			monthlySalary, 
+			otherMonthlyIncome, 
+			monthWorkingInYear, 
+			annualDeductible, 
+			spouseIdNumber.equals(""), 
+			childIdNumbers.size());
 	}
 }
